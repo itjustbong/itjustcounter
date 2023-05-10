@@ -10,7 +10,7 @@
 
 export interface Env {
   // Example binding to KV. Learn more at https://developers.cloudflare.com/workers/runtime-apis/kv/
-  // MY_KV_NAMESPACE: KVNamespace;
+  DB: KVNamespace;
   //
   // Example binding to Durable Object. Learn more at https://developers.cloudflare.com/workers/runtime-apis/durable-objects/
   // MY_DURABLE_OBJECT: DurableObjectNamespace;
@@ -22,12 +22,63 @@ export interface Env {
   // MY_SERVICE: Fetcher;
 }
 
+// @ts-ignore
+import index from './index.html';
+
+function handleHome() {
+  return new Response(index, {
+    headers: {
+      'Content-Type': 'text/html;chartset=utf-8',
+    },
+  });
+}
+
+function handleNotFound() {
+  return new Response(null, {
+    status: 404,
+  });
+}
+
+function handleBadRequest() {
+  return new Response(null, {
+    status: 400,
+  });
+}
+
+async function handleVisit(searchParams: URLSearchParams, env: Env) {
+  const url = searchParams.get('url');
+  if (!url) {
+    return handleBadRequest();
+  }
+  const kvUrl = await env.DB.get(url);
+  let value = 1;
+  if (!kvUrl) {
+    await env.DB.put(url, value + '');
+  } else {
+    value = parseInt(kvUrl) + 1;
+    await env.DB.put(url, value + '');
+  }
+  return new Response(JSON.stringify({ visits: value }), {
+    headers: {
+      'Content-Type': 'application/json',
+    },
+  });
+}
+
 export default {
   async fetch(
     request: Request,
     env: Env,
     ctx: ExecutionContext
   ): Promise<Response> {
-    return new Response('Hello World!');
+    const { pathname, searchParams } = new URL(request.url);
+    switch (pathname) {
+      case '/':
+        return handleHome();
+      case '/visit':
+        return handleVisit(searchParams, env);
+      default:
+        return handleNotFound();
+    }
   },
 };
