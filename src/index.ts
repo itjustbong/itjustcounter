@@ -24,6 +24,7 @@ export interface Env {
 
 // @ts-ignore
 import index from './index.html';
+import { makeSvg } from './util/makeSvg';
 
 function handleHome() {
   return new Response(index, {
@@ -47,6 +48,10 @@ function handleBadRequest() {
 
 async function handleVisit(searchParams: URLSearchParams, env: Env) {
   const url = searchParams.get('url');
+  const type = searchParams.get('type') || 'json';
+  const text = searchParams.get('text') || 'Counter';
+  const bgcolor = searchParams.get('bgcolor') || '#000';
+
   if (!url) {
     return handleBadRequest();
   }
@@ -58,11 +63,20 @@ async function handleVisit(searchParams: URLSearchParams, env: Env) {
     value = parseInt(kvUrl) + 1;
     await env.DB.put(url, value + '');
   }
-  return new Response(JSON.stringify({ visits: value }), {
-    headers: {
-      'Content-Type': 'application/json',
-    },
-  });
+
+  if (type === 'svg') {
+    return new Response(makeSvg(value, text, bgcolor), {
+      headers: {
+        'Content-Type': 'image/svg+xml;chartset=utf-8',
+      },
+    });
+  } else {
+    return new Response(JSON.stringify({ visits: value }), {
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+  }
 }
 
 export default {
