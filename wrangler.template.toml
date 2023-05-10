@@ -1,0 +1,5 @@
+name = "visitor-counter"
+main = "src/index.ts"
+compatibility_date = "2023-05-10"
+
+kv_namespaces = [{ binding = "DB", id = "your_id", preview_id = "your_preview_id"]
