@@ -24,6 +24,7 @@ export interface Env {
 
 // @ts-ignore
 import index from './index.html';
+import { compareDates, getKstDate } from './util/date';
 import { makeSvg } from './util/makeSvg';
 
 function handleHome() {
@@ -55,23 +56,39 @@ async function handleVisit(searchParams: URLSearchParams, env: Env) {
   if (!url) {
     return handleBadRequest();
   }
-  const kvUrl = await env.DB.get(url);
-  let value = 1;
-  if (!kvUrl) {
-    await env.DB.put(url, value + '');
+  const kvUrlInfo = await env.DB.get(url);
+
+  let infoObj = { today: 0, total: 0, updatedAt: new Date() };
+  const nowDate = getKstDate();
+
+  if (kvUrlInfo) {
+    infoObj = JSON.parse(kvUrlInfo);
+    // today Update?
+    if (compareDates(new Date(infoObj.updatedAt), nowDate)) {
+      infoObj.today += 1;
+      infoObj.total += 1;
+    } else {
+      infoObj.today = 1;
+      infoObj.total += 1;
+      infoObj.updatedAt = nowDate;
+    }
   } else {
-    value = parseInt(kvUrl) + 1;
-    await env.DB.put(url, value + '');
+    infoObj = {
+      today: 1,
+      total: 1,
+      updatedAt: nowDate,
+    };
   }
+  await env.DB.put(url, JSON.stringify(infoObj));
 
   if (type === 'svg') {
-    return new Response(makeSvg(value, text, bgcolor), {
+    return new Response(makeSvg(infoObj.today, text, bgcolor), {
       headers: {
         'Content-Type': 'image/svg+xml;chartset=utf-8',
       },
     });
   } else {
-    return new Response(JSON.stringify({ visits: value }), {
+    return new Response(JSON.stringify(infoObj), {
       headers: {
         'Content-Type': 'application/json',
       },
