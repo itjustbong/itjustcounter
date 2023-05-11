@@ -82,7 +82,7 @@ async function handleVisit(searchParams: URLSearchParams, env: Env) {
   await env.DB.put(url, JSON.stringify(infoObj));
 
   if (type === 'svg') {
-    return new Response(makeSvg(infoObj.today, text, bgcolor), {
+    return new Response(makeSvg(infoObj.total, text, bgcolor), {
       headers: {
         'Content-Type': 'image/svg+xml;chartset=utf-8',
       },
