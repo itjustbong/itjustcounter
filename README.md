@@ -16,9 +16,7 @@
 https://visitor-counter.qhdgkdbs.workers.dev/visit?url=itjustbong.me
 
 ```json
-{
-  "count": 1
-}
+{ "today": 10, "total": 10, "updatedAt": "2023-05-12T00:47:42.641Z" }
 ```
 
 ### with SVG
