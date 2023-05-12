@@ -85,12 +85,14 @@ async function handleVisit(searchParams: URLSearchParams, env: Env) {
     return new Response(makeSvg(infoObj.total, text, bgcolor), {
       headers: {
         'Content-Type': 'image/svg+xml;chartset=utf-8',
+        'Access-Control-Allow-Origin': '*',
       },
     });
   } else {
     return new Response(JSON.stringify(infoObj), {
       headers: {
         'Content-Type': 'application/json',
+        'Access-Control-Allow-Origin': '*',
       },
     });
   }
