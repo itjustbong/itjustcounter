@@ -67,6 +67,7 @@ async function handleVisit(searchParams: URLSearchParams, env: Env) {
     if (compareDates(new Date(infoObj.updatedAt), nowDate)) {
       infoObj.today += 1;
       infoObj.total += 1;
+      infoObj.updatedAt = nowDate;
     } else {
       infoObj.today = 1;
       infoObj.total += 1;
