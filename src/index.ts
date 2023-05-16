@@ -90,6 +90,9 @@ async function handleVisit(searchParams: URLSearchParams, env: Env) {
         headers: {
           'Content-Type': 'image/svg+xml;chartset=utf-8',
           'Access-Control-Allow-Origin': '*',
+          'Cache-Control': 'no-cache, no-store, must-revalidate',
+          Expires: '0',
+          Pragma: 'no-cache',
         },
       }
     );
