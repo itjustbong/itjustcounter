@@ -52,6 +52,7 @@ async function handleVisit(searchParams: URLSearchParams, env: Env) {
   const type = searchParams.get('type') || 'json';
   const text = searchParams.get('text') || 'Counter';
   const bgcolor = searchParams.get('bgcolor') || '#000';
+  const total = searchParams.get('total') || false;
 
   if (!url) {
     return handleBadRequest();
@@ -83,12 +84,15 @@ async function handleVisit(searchParams: URLSearchParams, env: Env) {
   await env.DB.put(url, JSON.stringify(infoObj));
 
   if (type === 'svg') {
-    return new Response(makeSvg(infoObj.total, text, bgcolor), {
-      headers: {
-        'Content-Type': 'image/svg+xml;chartset=utf-8',
-        'Access-Control-Allow-Origin': '*',
-      },
-    });
+    return new Response(
+      makeSvg(infoObj.today, text, bgcolor, total ? infoObj.total : -1),
+      {
+        headers: {
+          'Content-Type': 'image/svg+xml;chartset=utf-8',
+          'Access-Control-Allow-Origin': '*',
+        },
+      }
+    );
   } else {
     return new Response(JSON.stringify(infoObj), {
       headers: {
